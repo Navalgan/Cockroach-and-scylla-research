@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+
+  cockroach01:
+    image: cockroachdb/cockroach:v23.1.20
+    container_name: cdb01
+    hostname: cdb01
+    volumes:
+      - ./data/cdb01:/cockroach/cockroach-data
+    ports:
+      - '26250:26250'
+      - '8080:8080'
+    command: 'start --advertise-addr=cdb01:26357 --http-addr=cdb01:8080 --listen-addr=cdb01:26357 --sql-addr=cdb01:26250 --insecure --join=cdb01:26357,cdb02:26357,cdb03:26357,cdb04:26357,cdb05:26357,cdb06:26357,cdb07:26357'
+    networks:
+      - cockroach
+
+  cockroach02:
+    image: cockroachdb/cockroach:v23.1.20
+    container_name: cdb02
+    hostname: cdb02
+    volumes:
+      - ./data/cdb02:/cockroach/cockroach-data
+    ports:
+      - '26251:26251'
+      - '8081:8081'
+    command: 'start --advertise-addr=cdb02:26357 --http-addr=cdb02:8081 --listen-addr=cdb02:26357 --sql-addr=cdb02:26251 --insecure --join=cdb01:26357,cdb02:26357,cdb03:26357,cdb04:26357,cdb05:26357,cdb06:26357,cdb07:26357'
+    networks:
+      - cockroach
+
+  cockroach03:
+    image: cockroachdb/cockroach:v23.1.20
+    container_name: cdb03
+    hostname: cdb03
+    volumes:
+      - ./data/cdb03:/cockroach/cockroach-data
+    ports:
+      - '26252:26252'
+      - '8082:8082'
+    command: 'start --advertise-addr=cdb03:26357 --http-addr=cdb03:8082 --listen-addr=cdb03:26357 --sql-addr=cdb03:26252 --insecure --join=cdb01:26357,cdb02:26357,cdb03:26357,cdb04:26357,cdb05:26357,cdb06:26357,cdb07:26357'
+    networks:
+      - cockroach
+
+  cockroach04:
+    image: cockroachdb/cockroach:v23.1.20
+    container_name: cdb04
+    hostname: cdb04
+    volumes:
+      - ./data/cdb04:/cockroach/cockroach-data
+    ports:
+      - '26253:26253'
+      - '8083:8083'
+    command: 'start --advertise-addr=cdb04:26357 --http-addr=cdb04:8083 --listen-addr=cdb04:26357 --sql-addr=cdb04:26253 --insecure --join=cdb01:26357,cdb02:26357,cdb03:26357,cdb04:26357,cdb05:26357,cdb06:26357,cdb07:26357'
+    networks:
+      - cockroach
+
+  cockroach05:
+    image: cockroachdb/cockroach:v23.1.20
+    container_name: cdb05
+    hostname: cdb05
+    volumes:
+      - ./data/cdb05:/cockroach/cockroach-data
+    ports:
+      - '26254:26254'
+      - '8084:8084'
+    command: 'start --advertise-addr=cdb05:26357 --http-addr=cdb05:8084 --listen-addr=cdb05:26357 --sql-addr=cdb05:26253 --insecure --join=cdb01:26357,cdb02:26357,cdb03:26357,cdb04:26357,cdb05:26357,cdb06:26357,cdb07:26357'
+    networks:
+      - cockroach
+
+  cockroach06:
+    image: cockroachdb/cockroach:v23.1.20
+    container_name: cdb06
+    hostname: cdb06
+    volumes:
+      - ./data/cdb06:/cockroach/cockroach-data
+    ports:
+      - '26255:26255'
+      - '8085:8085'
+    command: 'start --advertise-addr=cdb06:26357 --http-addr=cdb06:8082 --listen-addr=cdb06:26357 --sql-addr=cdb06:26255 --insecure --join=cdb01:26357,cdb02:26357,cdb03:26357,cdb04:26357,cdb05:26357,cdb06:26357,cdb07:26357'
+    networks:
+      - cockroach
+
+  cockroach07:
+    image: cockroachdb/cockroach:v23.1.20
+    container_name: cdb07
+    hostname: cdb07
+    volumes:
+      - ./data/cdb07:/cockroach/cockroach-data
+    ports:
+      - '26256:26256'
+      - '8086:8086'
+    command: 'start --advertise-addr=cdb07:26357 --http-addr=cdb07:8086 --listen-addr=cdb07:26357 --sql-addr=cdb07:26256 --insecure --join=cdb01:26357,cdb02:26357,cdb03:26357,cdb04:26357,cdb05:26357,cdb06:26357,cdb07:26357'
+    networks:
+      - cockroach
+
+networks:
+  cockroach:
+    driver: bridge
