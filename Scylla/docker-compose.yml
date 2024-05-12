@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  research:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+
+  some-scylla:
+    image: scylladb/scylla
+    container_name: some-scylla

@@ -1,6 +1,8 @@
 package pebble_engine
 
 import (
+	"main/scripts"
+
 	"bytes"
 	"log"
 	"strconv"
@@ -8,8 +10,6 @@ import (
 	"github.com/cockroachdb/pebble"
 	"github.com/cockroachdb/pebble/sstable"
 	"github.com/cockroachdb/pebble/vfs"
-
-	"main/scripts"
 )
 
 var (

@@ -4,11 +4,13 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
 )
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
 const (
 	letterIdxBits = 6                    // 6 bits to represent a letter index
 	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
@@ -56,4 +58,47 @@ func GetSSTFromNode(node string) []string {
 	}
 
 	return res
+}
+
+func GetProcIDs() ([]string, error) {
+	res := make([]string, 0)
+
+	lsCmd := exec.Command("ps", "aux")
+	psOut, err := lsCmd.StdoutPipe()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := lsCmd.Start(); err != nil {
+		return nil, err
+	}
+
+	grepCmd := exec.Command("grep", "go")
+	grepCmd.Stdin = psOut
+
+	data, err := grepCmd.Output()
+	if err != nil {
+		return nil, err
+	}
+
+	grepOut := string(data)
+
+	for _, line := range strings.Split(grepOut, "\n") {
+		args := strings.Split(line, " ")
+		if len(args) < 5 {
+			continue
+		}
+		res = append(res, args[4])
+	}
+
+	return res, nil
+}
+
+func GetDataFromSST(file string, grep string) (string, error) {
+	out, err := exec.Command("bash", "scripts/scan.sh", file, grep).Output()
+	if err != nil {
+		return "", err
+	}
+
+	return string(out), nil
 }

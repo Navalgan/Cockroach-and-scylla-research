@@ -1,15 +1,15 @@
-package sql_commands
+package sql_common
 
 import (
+	"main/scripts"
+	"math/rand"
+
 	"context"
 	"log"
 	"strings"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-
-	"main/scripts"
-	"math/rand"
 )
 
 func CreateTable(ctx context.Context, tx pgx.Tx, tableName string) error {
@@ -22,13 +22,14 @@ func CreateTable(ctx context.Context, tx pgx.Tx, tableName string) error {
 	return nil
 }
 
-func DeleteTable(ctx context.Context, tx pgx.Tx, tableName string) error {
-	const sqlCommand = "DROP TABLE ?"
+func DropTable(ctx context.Context, tx pgx.Tx, tableName string) error {
+	const sqlCommand = "DROP TABLE ? CASCADE"
 
-	log.Print("Deleting the table...")
+	log.Print("Dropping the table...")
 	if _, err := tx.Exec(ctx, strings.Replace(sqlCommand, "?", tableName, 1)); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -39,6 +40,7 @@ func InsertRow(ctx context.Context, tx pgx.Tx, tableName string, field1 int, fie
 	if _, err := tx.Exec(ctx, strings.Replace(sqlCommand, "?", tableName, 1), field1, field2); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -49,16 +51,7 @@ func DeleteRow(ctx context.Context, tx pgx.Tx, tableName string, id uuid.UUID) e
 	if _, err := tx.Exec(ctx, strings.Replace(sqlCommand, "?", tableName, 1), id); err != nil {
 		return err
 	}
-	return nil
-}
 
-func CreateSecondaryIndex(ctx context.Context, tx pgx.Tx, tableName, indexName, fieldName string) error {
-	const sqlCommand = "CREATE INDEX ? ON ? (?);"
-
-	log.Printf("Creating secondary index...")
-	if _, err := tx.Exec(ctx, strings.Replace(strings.Replace(strings.Replace(sqlCommand, "?", indexName, 1), "?", tableName, 1), "?", fieldName, 1)); err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -91,4 +84,15 @@ func ArtificialSelect(ctx context.Context, tx pgx.Tx, tableName string) error {
 	}
 
 	return nil
+}
+
+func SelectAll(ctx context.Context, tx pgx.Tx, tableName string) (pgx.Rows, error) {
+	const sqlCommand = "SELECT * FROM ?"
+
+	results, err := tx.Query(ctx, strings.Replace(sqlCommand, "?", tableName, 1))
+	if err != nil {
+		return nil, err
+	}
+
+	return results, nil
 }

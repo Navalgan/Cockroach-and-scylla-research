@@ -1,31 +1,44 @@
 package secondary_indexes
 
 import (
+	"main/research/secondary_indexes/sql_commands"
+	"main/scripts"
+	"main/scripts/pebble_engine"
+	"main/scripts/sql_common"
+
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/cockroachdb/cockroach-go/v2/crdb/crdbpgxv5"
 	"github.com/jackc/pgx/v5"
-
-	"main/scripts/pebble_engine"
-	"main/scripts/sql_commands"
 )
 
-func SecondaryIndex(ctx context.Context, conn *pgx.Conn, tableName, secretKey string, needDelete, showAll bool) error {
+func SecondaryIndex(ctx context.Context, conn *pgx.Conn, tableName, indexName, secretKey string, needClear, showAll bool) error {
+	if needClear {
+		defer func() {
+			_ = crdbpgx.ExecuteTx(ctx, conn, pgx.TxOptions{}, func(tx pgx.Tx) error {
+				return sql_commands.DropSecondaryIndex(ctx, tx, indexName)
+			})
+
+			_ = crdbpgx.ExecuteTx(ctx, conn, pgx.TxOptions{}, func(tx pgx.Tx) error {
+				return sql_common.DropTable(ctx, tx, tableName)
+			})
+		}()
+	}
+
 	if err := crdbpgx.ExecuteTx(ctx, conn, pgx.TxOptions{}, func(tx pgx.Tx) error {
-		return sql_commands.CreateTable(context.Background(), tx, tableName)
+		return sql_common.CreateTable(ctx, tx, tableName)
 	}); err != nil {
 		return err
 	}
 
-	if err := crdbpgx.ExecuteTx(context.Background(), conn, pgx.TxOptions{}, func(tx pgx.Tx) error {
-		return sql_commands.InsertRow(ctx, tx, tableName, 2281337, secretKey)
+	if err := crdbpgx.ExecuteTx(ctx, conn, pgx.TxOptions{}, func(tx pgx.Tx) error {
+		return sql_common.InsertRow(ctx, tx, tableName, 2281337, secretKey)
 	}); err != nil {
 		return err
 	}
 
-	log.Print("Before creating a secondary index")
+	fmt.Print("Before creating a secondary index\n")
 	nodesBefore := pebble_engine.CheckAllNodes([]byte(secretKey), showAll)
 	for len(nodesBefore) == 0 {
 		nodesBefore = pebble_engine.CheckAllNodes([]byte(secretKey), showAll)
@@ -41,13 +54,13 @@ func SecondaryIndex(ctx context.Context, conn *pgx.Conn, tableName, secretKey st
 		}
 	}
 
-	if err := crdbpgx.ExecuteTx(context.Background(), conn, pgx.TxOptions{}, func(tx pgx.Tx) error {
-		return sql_commands.CreateSecondaryIndex(context.Background(), tx, tableName, "research_index_1", "field2")
+	if err := crdbpgx.ExecuteTx(ctx, conn, pgx.TxOptions{}, func(tx pgx.Tx) error {
+		return sql_commands.CreateSecondaryIndex(ctx, tx, tableName, indexName, "field2")
 	}); err != nil {
 		return err
 	}
 
-	log.Print("After creating a secondary index")
+	fmt.Print("After creating a secondary index\n")
 	nodesAfter := pebble_engine.CheckNodes(nodesWithKey, []byte(secretKey), true)
 
 	for node, nodeRes := range nodesAfter {
@@ -77,11 +90,15 @@ func SecondaryIndex(ctx context.Context, conn *pgx.Conn, tableName, secretKey st
 		fmt.Printf("\n")
 	}
 
-	if needDelete {
-		if err := crdbpgx.ExecuteTx(ctx, conn, pgx.TxOptions{}, func(tx pgx.Tx) error {
-			return sql_commands.DeleteTable(context.Background(), tx, tableName)
-		}); err != nil {
-			return err
+	fmt.Print("Data in SST files:\n")
+	for _, node := range nodesWithKey {
+		files := scripts.GetSSTFromNode(node)
+		for _, file := range files {
+			data, err := scripts.GetDataFromSST(file, secretKey)
+			if err != nil {
+				return err
+			}
+			fmt.Printf("%s\n", data)
 		}
 	}
 
