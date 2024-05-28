@@ -23,6 +23,9 @@ type InternalKV struct {
 
 func FindInternalKeyInSST(fileName string, key []byte, showAll bool) []InternalKV {
 	fileOpen, err := vfs.Default.Open(fileName)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	readable, err := sstable.NewSimpleReadable(fileOpen)
 	if err != nil {

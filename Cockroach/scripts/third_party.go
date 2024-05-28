@@ -73,7 +73,7 @@ func GetProcIDs() ([]string, error) {
 		return nil, err
 	}
 
-	grepCmd := exec.Command("grep", "go")
+	grepCmd := exec.Command("grep", "cockroach")
 	grepCmd.Stdin = psOut
 
 	data, err := grepCmd.Output()

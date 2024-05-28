@@ -3,7 +3,7 @@ version: '3.8'
 services:
 
   cockroach01:
-    image: cockroachdb/cockroach:v24.1.0
+    image: cockroachdb/cockroach:v23.1.22
     container_name: cdb01
     hostname: cdb01
     volumes:
@@ -16,7 +16,7 @@ services:
       - cockroach
 
   cockroach02:
-    image: cockroachdb/cockroach:v24.1.0
+    image: cockroachdb/cockroach:v23.1.22
     container_name: cdb02
     hostname: cdb02
     volumes:
@@ -29,7 +29,7 @@ services:
       - cockroach
 
   cockroach03:
-    image: cockroachdb/cockroach:v24.1.0
+    image: cockroachdb/cockroach:v23.1.22
     container_name: cdb03
     hostname: cdb03
     volumes:
@@ -42,7 +42,7 @@ services:
       - cockroach
 
   cockroach04:
-    image: cockroachdb/cockroach:v24.1.0
+    image: cockroachdb/cockroach:v23.1.22
     container_name: cdb04
     hostname: cdb04
     volumes:
@@ -55,7 +55,7 @@ services:
       - cockroach
 
   cockroach05:
-    image: cockroachdb/cockroach:v24.1.0
+    image: cockroachdb/cockroach:v23.1.22
     container_name: cdb05
     hostname: cdb05
     volumes:
@@ -68,7 +68,7 @@ services:
       - cockroach
 
   cockroach06:
-    image: cockroachdb/cockroach:v24.1.0
+    image: cockroachdb/cockroach:v23.1.22
     container_name: cdb06
     hostname: cdb06
     volumes:
@@ -81,7 +81,7 @@ services:
       - cockroach
 
   cockroach07:
-    image: cockroachdb/cockroach:v24.1.0
+    image: cockroachdb/cockroach:v23.1.22
     container_name: cdb07
     hostname: cdb07
     volumes:
