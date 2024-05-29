@@ -5,7 +5,42 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+    networks:
+      web:
 
-  some-scylla:
-    image: scylladb/scylla
-    container_name: some-scylla
+  scylla1:
+    container_name: scylla1
+    image: scylladb/scylla:5.4.6
+    restart: always
+    command: --reactor-backend=epoll --seeds=scylla1,scylla2 --smp 1 --memory 750M --overprovisioned 1 --api-address 0.0.0.0
+    volumes:
+      - "./scylla/scylla.yaml:/etc/scylla/scylla.yaml"
+      - "./scylla/cassandra-rackdc.properties.dc1:/etc/scylla/cassandra-rackdc.properties"
+    networks:
+      web:
+
+  scylla2:
+    container_name: scylla2
+    image: scylladb/scylla:5.4.6
+    restart: always
+    command: --seeds=scylla1,scylla2 --smp 1 --memory 750M --overprovisioned 1 --api-address 0.0.0.0 --reactor-backend=epoll
+    volumes:
+      - "./scylla/scylla.yaml:/etc/scylla/scylla.yaml"
+      - "./scylla/cassandra-rackdc.properties.dc1:/etc/scylla/cassandra-rackdc.properties"
+    networks:
+      web:
+
+  scylla3:
+    container_name: scylla3
+    image: scylladb/scylla:5.4.6
+    restart: always
+    command: --seeds=scylla1,scylla2 --smp 1 --memory 750M --overprovisioned 1 --api-address 0.0.0.0 --reactor-backend=epoll
+    volumes:
+      - "./scylla/scylla.yaml:/etc/scylla/scylla.yaml"
+      - "./scylla/cassandra-rackdc.properties.dc1:/etc/scylla/cassandra-rackdc.properties"
+    networks:
+      web:
+
+networks:
+  web:
+    driver: bridge
